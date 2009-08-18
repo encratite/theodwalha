@@ -8,6 +8,7 @@ std::size_t maximal_extended_buffer_size;
 std::size_t maximal_request_size;
 std::string temporary_file_directory;
 ulong temporary_file_expiration;
+uword temporary_file_name_length;
 
 bool parse_configuration_file(std::string const & path)
 {
@@ -27,6 +28,7 @@ bool parse_configuration_file(std::string const & path)
 		maximal_request_size = configuration.number<std::size_t>("maximal_request_size");
 		temporary_file_directory = configuration.string("temporary_file_directory");
 		temporary_file_expiration = configuration.number<ulong>("temporary_file_expiration");
+		temporary_file_name_length = configuration.number<uword>("temporary_file_name_length");
 	}
 	catch(ail::exception & exception)
 	{

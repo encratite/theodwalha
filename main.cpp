@@ -4,17 +4,18 @@
 #include "server.hpp"
 #include "configuration.hpp"
 
-void run_server()
+bool run_server()
 {
 	boost::asio::io_service io_service;
 	http_server server(io_service);
 	if(!server.launch_server(http_server_port))
 	{
 		std::cout << "Unable to bind port" << std::endl;
-		return 1;
+		return false;
 	}
 	std::cout << "Running IO service" << std::endl;
 	io_service.run();
+	return true;
 }
 
 int main(int argc, char ** argv)
@@ -30,6 +31,8 @@ int main(int argc, char ** argv)
 	if(!parse_configuration_file(configuration_file_path))
 		return 1;
 
-	run_server();
+	if(!run_server())
+		return 1;
+
 	return 0;
 }

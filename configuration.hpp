@@ -10,5 +10,6 @@ extern std::size_t maximal_extended_buffer_size;
 extern std::size_t maximal_request_size;
 extern std::string temporary_file_directory;
 extern ulong temporary_file_expiration;
+extern uword temporary_file_name_length;
 
 bool parse_configuration_file(std::string const & path);

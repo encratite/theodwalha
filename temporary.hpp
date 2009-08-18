@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <ail/types.hpp>
+#include <boost/thread/mutex.hpp>
 
 struct temporary_file_entry
 {
@@ -18,12 +19,15 @@ class temporary_file_manager
 {
 public:
 	temporary_file_manager(std::string const & directory);
+	bool initialise();
 	std::string generate_name();
+	void release(std::string const & path);
 
 private:
 	std::string directory;
 	std::set<temporary_file_entry> files;
+	boost::mutex mutex;
 
-	void clean();
-	void clean_all();
+	bool clean();
+	bool clean_all();
 };
