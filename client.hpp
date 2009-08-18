@@ -22,5 +22,5 @@ struct http_server_client
 	void read();
 	void terminate();
 
-	void read_event(boost::system::error_code const & error, std::size_t bytes_read);
+	void read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer);
 };

@@ -12,15 +12,22 @@ quality_entry::quality_entry()
 {
 }
 
-quality_entry::quality_string(std::string const & name):
+quality_entry::quality_entry(std::string const & name):
 	name(name),
 	quality_value(1.0f)
 {
 }
 
-quality_entry::quality_string(std::string const & name, float quality_value):
+quality_entry::quality_entry(std::string const & name, float quality_value):
 	name(name),
 	quality_value(quality_value)
+{
+}
+
+http_request::http_request():
+	has_content_type(false),
+	has_content_length(false),
+	keep_alive(false)
 {
 }
 
@@ -45,10 +52,47 @@ bool decode_string(std::string const & input, std::string & output)
 			if(!ail::string_to_number<char>(hex_string, hex_byte, std::ios_base::hex))
 				return false;
 
-			output.append(hex_byte);
+			output.push_back(hex_byte);
 		}
 		else
-			output.append(byte);
+			output.push_back(byte);
+	}
+	return true;
+}
+
+bool parse_quality_entries(std::string const & input, quality_entries & output, std::string & error_message)
+{
+	string_vector argument_tokens = ail::tokenise(input, ",");
+	BOOST_FOREACH(std::string token, argument_tokens)
+	{
+		string_vector quality_tokens = ail::tokenise(ail::trim(token), ";q=");
+		switch(quality_tokens.size())
+		{
+			case 1:
+				output.push_back(quality_entry(quality_tokens[0]));
+				break;
+
+			case 2:
+			{
+				float quality_value;
+				if(!ail::string_to_number(quality_tokens[1], quality_value))
+				{
+					error_message = "Failed to parse quality value";
+					return false;
+				}
+				if(quality_value < 0.0f || quality_value > 1.0f)
+				{
+					error_message = "Quality value out of range";
+					return false;
+				}
+				output.push_back(quality_entry(quality_tokens[1]));
+				break;
+			}
+
+			default:
+				error_message = "Invalid quality value token count";
+				return false;
+		}
 	}
 	return true;
 }
@@ -98,7 +142,7 @@ process_header_result::type process_header(std::string const & input, http_reque
 		return error;
 	}
 
-	if(!decode_string(encoded_path, path))
+	if(!decode_string(encoded_path, output.path))
 	{
 		error_message = "Failed to decode path";
 		return error;
@@ -122,22 +166,24 @@ process_header_result::type process_header(std::string const & input, http_reque
 		if(name == "Content-Type")
 		{
 			if(argument == "application/x-www-form-urlencoded")
-				content_type = application_x_www_form_urlencoded;
+				output.content_type = application_x_www_form_urlencoded;
 			else if(argument == "multipart/form-data")
-				content_type = multipart_form_data;
+				output.content_type = multipart_form_data;
 			else
 			{
 				error_message = "Unknown content type specified";
 				return error;
 			}
+			output.has_content_type = true;
 		}
 		else if(name == "Content-Length")
 		{
-			if(!ail::string_to_number<std::size_t>(argument, content_length))
+			if(!ail::string_to_number<std::size_t>(argument, output.content_length))
 			{
 				error_message = "Invalid content length specified";
 				return error;
 			}
+			output.has_content_length = true;
 		}
 		else if(name == "Cookie")
 		{
@@ -165,12 +211,19 @@ process_header_result::type process_header(std::string const & input, http_reque
 				}
 			}
 		}
-		else
+		else if(name == "Accept-Encoding")
 		{
-			string_vector argument_tokens = ail::tokenise(argument, ",");
+			if(!parse_quality_entries(argument, output.accepted_encodings, error_message))
+				return error;
+		}
+		else if(name == "Connection")
+		{
+			string_vector argument_tokens = ail::tokenise(input, ",");
 			BOOST_FOREACH(std::string token, argument_tokens)
 			{
 				token = ail::trim(token);
+				if(token == "Keep-Alive")
+					output.keep_alive = true;
 			}
 		}
 	}

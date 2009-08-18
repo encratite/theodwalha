@@ -37,8 +37,8 @@ struct quality_entry
 	float quality_value;
 
 	quality_entry();
-	quality_string(std::string const & name);
-	quality_string(std::string const & name, float quality_value);
+	quality_entry(std::string const & name);
+	quality_entry(std::string const & name, float quality_value);
 };
 
 typedef std::vector<quality_entry> quality_entries;
@@ -50,19 +50,24 @@ struct http_request
 	http_form_content::type content_type;
 	std::size_t content_length;
 
+	bool
+		has_content_type,
+		has_content_length,
+		keep_alive;
+
 	std::string
 		path,
 		user_agent,
 		host,
 		referrer;
 
-	quality_entries
-		connection,
-		accepted_encodings;
+	quality_entries accepted_encodings;
 
 	std::map<std::string, std::string>
 		cookies,
 		form_fields;
+
+	http_request();
 };
 
 namespace process_header_result

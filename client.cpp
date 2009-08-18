@@ -19,13 +19,13 @@ http_server_client::~http_server_client()
 
 void http_server_client::start()
 {
-	bytes_received = 0;
+	bytes_read = 0;
 	read();
 }
 
 void http_server_client::read()
 {
-	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_read));
+	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
 void http_server_client::terminate()
@@ -39,21 +39,21 @@ void http_server_client::terminate()
 	delete this;
 }
 
-void http_server_client::read_event(boost::system::error_code const & error, std::size_t bytes_read)
+void http_server_client::read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer)
 {
 	if(!error)
 	{
-		std::cout << "Read " << bytes_read << " bytes:" << std::endl;
-		bytes_received += bytes_read;
+		std::cout << "Read " << bytes_in_buffer << " bytes:" << std::endl;
+		bytes_read += bytes_in_buffer;
 
-		if(bytes_received > maximal_request_size)
+		if(bytes_read > maximal_request_size)
 		{
 			std::cout << "Request too large" << std::endl;
 			terminate();
 			return;
 		}
 
-		std::string new_data(read_buffer, bytes_read);
+		std::string new_data(read_buffer, bytes_in_buffer);
 
 		if(temporary_file_name.empty())
 		{
