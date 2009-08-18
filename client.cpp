@@ -1,11 +1,7 @@
 #include <boost/bind.hpp>
 #include <iostream>
 #include "client.hpp"
-
-namespace
-{
-	std::size_t const read_buffer_size = 1024;
-}
+#include "configuration.hpp"
 
 http_server_client::http_server_client(boost::asio::io_service & io_service):
 	socket(io_service)

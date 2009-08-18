@@ -1,6 +1,7 @@
 #include <boost/bind.hpp>
 #include <iostream>
 #include "server.hpp"
+#include "configuration.hpp"
 
 http_server::http_server(boost::asio::io_service & io_service):
 	running(false),
@@ -21,7 +22,7 @@ bool http_server::launch_server(ushort new_port)
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), new_port);
 	acceptor.open(endpoint.protocol());
 	acceptor.bind(endpoint, error);
-	acceptor.listen(0);
+	acceptor.listen(backlog);
 	if(!error)
 	{
 		running = true;
