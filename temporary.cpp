@@ -56,7 +56,7 @@ std::string temporary_file_manager::generate_name()
 		{
 			boost::mutex::scoped_lock scoped_lock(mutex);
 			files.insert(temporary_file_entry(name));
-			return name;
+			return path;
 		}
 	}
 }
@@ -65,7 +65,8 @@ void temporary_file_manager::release(std::string const & path)
 {
 	boost::mutex::scoped_lock scoped_lock(mutex);
 
-	files.erase(path);
+	if(ail::remove_file(path))
+		files.erase(path);
 }
 
 bool temporary_file_manager::clean()
@@ -98,8 +99,12 @@ bool temporary_file_manager::clean_all()
 	if(!ail::read_directory(directory, files, directories))
 		return false;
 
-	BOOST_FOREACH(std::string const & path, files)
+	BOOST_FOREACH(std::string const & file, files)
+	{
+		std::string path = ail::join_paths(directory, file);
+		//std::cout << "Deleting " << path << std::endl;
 		ail::remove_file(path);
+	}
 
 	return true;
 }
