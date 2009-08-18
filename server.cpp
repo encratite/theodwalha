@@ -21,6 +21,7 @@ bool http_server::launch_server(ushort new_port)
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), new_port);
 	acceptor.open(endpoint.protocol());
 	acceptor.bind(endpoint, error);
+	acceptor.listen(0);
 	if(!error)
 	{
 		running = true;

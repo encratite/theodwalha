@@ -43,6 +43,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 
 		read_data.append(read_buffer, bytes_transferred);
 		std::cout << read_buffer << std::endl;
+
+		read();
 	}
 	else
 		terminate();
