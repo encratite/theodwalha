@@ -2,8 +2,10 @@
 
 #include <string>
 #include <ail/file.hpp>
+#include <ail/types.hpp>
 #include <boost/asio.hpp>
 #include "temporary.hpp"
+#include "request.hpp"
 
 struct http_server_client
 {
@@ -14,11 +16,16 @@ struct http_server_client
 	temporary_file_manager & file_manager;
 	ail::file temporary_file;
 	std::size_t bytes_read;
+	uword keep_alive_counter;
+
+	bool got_header;
+	http_request current_request;
 
 	http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager);
 	~http_server_client();
 
 	void start();
+	void initialise();
 	void read();
 	void terminate();
 

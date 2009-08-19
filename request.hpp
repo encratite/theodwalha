@@ -48,12 +48,14 @@ struct http_request
 	http_protocol::type protocol_version;
 	http_request_method::type method;
 	http_form_content::type content_type;
+	std::size_t header_size;
 	std::size_t content_length;
 
 	bool
 		has_content_type,
 		has_content_length,
-		keep_alive;
+		keep_alive,
+		gzip;
 
 	std::string
 		path,

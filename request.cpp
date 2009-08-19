@@ -27,7 +27,9 @@ quality_entry::quality_entry(std::string const & name, float quality_value):
 http_request::http_request():
 	has_content_type(false),
 	has_content_length(false),
-	keep_alive(false)
+	keep_alive(false),
+	gzip(false),
+	content_length(0)
 {
 }
 
@@ -104,9 +106,11 @@ process_header_result::type process_header(std::string const & input, http_reque
 	using namespace http_protocol;
 	using namespace http_form_content;
 
-	std::size_t offset = input.find(delimiter);
+	std::size_t offset = input.find(end_of_header);
 	if(offset == std::string::npos)
 		return no_delimiter;
+
+	output.header_size = offset + end_of_header.size();
 
 	std::string header = input.substr(0, offset);
 	string_vector lines = ail::tokenise(header, delimiter);
@@ -215,6 +219,9 @@ process_header_result::type process_header(std::string const & input, http_reque
 		{
 			if(!parse_quality_entries(argument, output.accepted_encodings, error_message))
 				return error;
+			BOOST_FOREACH(quality_entry & entry, output.accepted_encodings)
+				if(entry.name == "gzip" && entry.quality_value > 0.0f)
+					output.gzip = true;
 		}
 		else if(name == "Connection")
 		{
@@ -227,4 +234,6 @@ process_header_result::type process_header(std::string const & input, http_reque
 			}
 		}
 	}
+
+	return success;
 }
