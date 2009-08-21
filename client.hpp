@@ -28,6 +28,8 @@ struct http_server_client
 	void initialise();
 	void read();
 	void terminate();
+	void write(std::string const & data);
 
 	void read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer);
+	void write_event(boost::system::error_code const & error, char * write_buffer);
 };

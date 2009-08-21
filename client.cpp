@@ -35,6 +35,13 @@ void http_server_client::read()
 	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
+void http_server_client::write(std::string const & data)
+{
+	char * write_buffer = new char[data.size()];
+	std::memcpy(write_buffer, data.c_str(), data.size());
+	boost::asio::async_write(socket, boost::asio::buffer(write_buffer, data.size()), boost::bind(&http_server_client::write_event, this, boost::asio::placeholders::error, write_buffer));
+}
+
 void http_server_client::terminate()
 {
 	std::cout << "Terminating" << std::endl;
@@ -133,6 +140,28 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		}
 
 		read();
+	}
+	else
+		terminate();
+}
+
+void http_server_client::write_event(boost::system::error_code const & error, char * write_buffer)
+{
+	delete write_buffer;
+
+	if(!error)
+	{
+		if(current_request.keep_alive)
+		{
+			keep_alive_counter--;
+			if(keep_alive_counter <= 0)
+			{
+				std::cout << "Client keep alive counter is zero" << std::endl;
+				terminate();
+			}
+			else
+				read();
+		}
 	}
 	else
 		terminate();

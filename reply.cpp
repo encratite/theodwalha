@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ail/string.hpp>
+#include <ail/zlib.hpp>
 #include "reply.hpp"
 
 http_reply::http_reply():
@@ -63,7 +64,16 @@ bool http_reply::get_packet(std::string & packet)
 	packet += " " + ail::number_to_string(code) + description + delimiter;
 	if(gzip)
 	{
-		//missing feature
+		try
+		{
+			std::string compressed_content;
+			ail::compress_gzip(content, compressed_content);
+			content = compressed_content;
+		}
+		catch(ail::exception & exception)
+		{
+			std::cout << exception.get_message() << std::endl;
+		}
 		packet += "Content-Encoding: gzip" + delimiter;
 	}
 
