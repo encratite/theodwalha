@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <boost/function.hpp>
 #include <theodwalha/request.hpp>
 
 namespace request_handler_command

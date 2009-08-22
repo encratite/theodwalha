@@ -13,5 +13,6 @@ extern ulong temporary_file_expiration;
 extern uword temporary_file_name_length;
 extern uword keep_alive_timeout;
 extern uword keep_alive_max;
+extern std::string module_directory;
 
 bool parse_configuration_file(std::string const & path);

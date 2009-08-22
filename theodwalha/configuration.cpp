@@ -11,6 +11,7 @@ ulong temporary_file_expiration;
 uword temporary_file_name_length;
 uword keep_alive_timeout;
 uword keep_alive_max;
+std::string module_directory;
 
 bool parse_configuration_file(std::string const & path)
 {
@@ -33,6 +34,7 @@ bool parse_configuration_file(std::string const & path)
 		temporary_file_name_length = configuration.number<uword>("temporary_file_name_length");
 		keep_alive_timeout = configuration.number<uword>("keep_alive_timeout");
 		keep_alive_max = configuration.number<uword>("keep_alive_max");
+		module_directory = configuration.string("module_directory");
 	}
 	catch(ail::exception & exception)
 	{
