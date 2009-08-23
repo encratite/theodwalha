@@ -30,4 +30,5 @@ struct module_result
 	std::string error_message;
 };
 
-typedef boost::function<module_result (http_request & request)> request_handler_function;
+typedef module_result request_handler_function_type(http_request & request);
+typedef boost::function<request_handler_function_type> request_handler_function;

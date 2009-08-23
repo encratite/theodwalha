@@ -25,6 +25,9 @@ bool http_server::launch_server(ushort new_port)
 		return false;
 	}
 
+	if(!modules.load_modules(module_directory))
+		return false;
+
 	boost::system::error_code error;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), new_port);
 	acceptor.open(endpoint.protocol());

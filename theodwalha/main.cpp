@@ -9,10 +9,7 @@ bool run_server()
 	boost::asio::io_service io_service;
 	http_server server(io_service, temporary_file_directory);
 	if(!server.launch_server(http_server_port))
-	{
-		std::cout << "Unable to bind port" << std::endl;
 		return false;
-	}
 	std::cout << "Running IO service" << std::endl;
 	io_service.run();
 	return true;

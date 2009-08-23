@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <theodwalha/client.hpp>
 #include <theodwalha/temporary.hpp>
+#include <theodwalha/module_manager.hpp>
 
 class http_server
 {
@@ -22,6 +23,7 @@ private:
 	boost::asio::ip::tcp::acceptor acceptor;
 
 	temporary_file_manager file_manager;
+	module_manager modules;
 
 	void accept();
 
