@@ -223,6 +223,7 @@ bool http_server_client::generate_content(http_request & request, module_result 
 	reply.keep_alive = request.keep_alive;
 	reply.content_type = result.content_type;
 	reply.keep_alive_timeout = keep_alive_timeout;
+	reply.keep_alive_max = keep_alive_counter;
 	reply.content = result.content;
 
 	if(!reply.get_packet(content))

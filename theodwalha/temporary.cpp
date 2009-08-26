@@ -86,6 +86,8 @@ bool temporary_file_manager::clean()
 
 	BOOST_FOREACH(std::string const & path, removed_strings)
 		files.erase(path);
+
+	return true;
 }
 
 bool temporary_file_manager::clean_all()

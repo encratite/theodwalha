@@ -1,6 +1,7 @@
 #include <ail/string.hpp>
 #include <boost/foreach.hpp>
 #include <theodwalha/request.hpp>
+#include <iostream>
 
 namespace
 {
@@ -167,6 +168,8 @@ process_header_result::type process_header(std::string const & input, http_reque
 		offset += target.size();
 		std::string argument = current_line.substr(offset);
 
+		std::cout << "Processing name " << name << std::endl;
+
 		if(name == "Content-Type")
 		{
 			if(argument == "application/x-www-form-urlencoded")
@@ -225,10 +228,11 @@ process_header_result::type process_header(std::string const & input, http_reque
 		}
 		else if(name == "Connection")
 		{
-			string_vector argument_tokens = ail::tokenise(input, ",");
+			string_vector argument_tokens = ail::tokenise(argument, ",");
 			BOOST_FOREACH(std::string token, argument_tokens)
 			{
 				token = ail::trim(token);
+				std::cout << "Parsing Connection token: " << token << std::endl;
 				if(token == "Keep-Alive")
 					output.keep_alive = true;
 			}
