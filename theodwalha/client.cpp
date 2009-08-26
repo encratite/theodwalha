@@ -5,9 +5,10 @@
 #include <theodwalha/configuration.hpp>
 #include <theodwalha/temporary.hpp>
 
-http_server_client::http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager):
+http_server_client::http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager, module_manager & modules):
 	socket(io_service),
 	file_manager(file_manager),
+	modules(modules),
 	keep_alive_counter(keep_alive_max)
 {
 	read_buffer = new char[read_buffer_size];
@@ -135,7 +136,18 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 			}
 			else if(bytes_read == expected_byte_count)
 			{
-				std::cout << "Ready to serve data for " << current_request.path << std::endl;
+				std::cout << "Ready to serve data for " << current_request.path << ", time to have the module manager process it" std::endl;
+				module_result result;
+				if(modules.process_request(current_request, result))
+				{
+					std::cout << "The module manager successfully processed the request" << std::endl;
+				}
+				else
+				{
+					std::cout << "The module manager failed to process this request" << std::endl;
+					terminate();
+					return;
+				}
 			}
 		}
 
@@ -165,4 +177,41 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 	}
 	else
 		terminate();
+}
+
+bool module_manager::generate_content(http_request & request, module_result & result, std::string & content)
+{
+	http_reply reply;
+	reply.protocol = request.protocol_version;
+	switch(result.return_code)
+	{
+		case request_handler_return_code::ok:
+			reply.ok();
+			break;
+
+		case request_handler_return_code::forbidden:
+			reply.forbidden();
+			break;
+
+		case request_handler_return_code::not_found:
+			reply.not_found();
+			break;
+
+		default:
+			std::cout << "Unknown request handler return code specified" << std::endl;
+			return false;
+	}
+
+	reply.gzip = request.gzip;
+	reply.keep_alive = request.keep_alive;
+
+	if(!reply.get_packet(content))
+	{
+		std::cout << "Failed to build reply packet" << std::endl;
+		return false;
+	}
+
+	reply.keep_alive_timeout = keep_alive_timeout;
+
+	return true;
 }

@@ -49,7 +49,7 @@ bool http_server::launch_server(ushort new_port)
 
 void http_server::accept()
 {
-	http_server_client * new_client = new http_server_client(io_service, file_manager);
+	http_server_client * new_client = new http_server_client(io_service, file_manager, modules);
 	acceptor.async_accept(new_client->socket, boost::bind(&http_server::accept_event, this, boost::asio::placeholders::error, new_client));
 }
 

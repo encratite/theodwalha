@@ -2,6 +2,7 @@
 #include <ail/file.hpp>
 #include <boost/foreach.hpp>
 #include <theodwalha/module_manager.hpp>
+#include <theodwalha/configuration.hpp>
 
 bool module_manager::load_modules(std::string const & directory)
 {
@@ -32,12 +33,45 @@ bool module_manager::load_modules(std::string const & directory)
 
 		std::cout << "Loaded " << path << std::endl;
 
-		modules.push_back(new_module);
+		module_entry current_entry;
+		current_entry.name = path;
+		current_entry.module_pointer = new_module;
+		current_entry.handler = reinterpret_cast<request_handler_function_type *>(function_pointer);
+		module_entries.push_back(current_entry);
 	}
 
 	return true;
 }
 
-void module_manager::process_request(http_request & request)
+bool module_manager::process_request(http_request & request, module_result & result)
 {
+	BOOST_FOREACH(module_entry & entry, module_entries)
+	{
+		entry.handler(request, result);
+
+		std::cout << entry.name << ": ";
+
+		bool output = false;
+
+		switch(result.result)
+		{
+			case request_handler_result::no_match:
+				std::cout << "No match" << std::endl;
+				break;
+
+			case request_handler_result::success:
+				std::cout << "Success!" << std::endl; 
+				output = true;
+				break;
+
+			case request_handler_result::error:
+				std::cout << "Error: " << result.error_message std::endl;
+				break;
+		}
+
+		if(result.command == request_handler_command::stop)
+			return output;
+	}
+
+	return false;
 }

@@ -5,16 +5,19 @@
 #include <ail/module.hpp>
 #include <theodwalha/module.hpp>
 
-typedef std::vector<ail::dynamic_module *> module_vector;
-typedef std::vector<request_handler_function> request_handler_vector;
+struct module_entry
+{
+	std::string name;
+	ail::dynamic_module * module_pointer;
+	request_handler_function handler;
+};
 
 class module_manager
 {
 public:
 	bool load_modules(std::string const & directory);
-	void process_request(http_request & request);
+	bool process_request(http_request & request, module_result & result);
 
 private:
-	module_vector modules;
-	request_handler_vector request_handlers;
+	std::vector<module_entry> module_entries;
 };

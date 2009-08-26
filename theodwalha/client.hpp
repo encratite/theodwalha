@@ -17,11 +17,12 @@ struct http_server_client
 	ail::file temporary_file;
 	std::size_t bytes_read;
 	uword keep_alive_counter;
+	module_manager & modules;
 
 	bool got_header;
 	http_request current_request;
 
-	http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager);
+	http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager, module_manager & modules);
 	~http_server_client();
 
 	void start();
