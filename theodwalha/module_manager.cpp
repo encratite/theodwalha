@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ail/file.hpp>
+#include <ail/string.hpp>
 #include <boost/foreach.hpp>
 #include <theodwalha/module_manager.hpp>
 #include <theodwalha/configuration.hpp>
@@ -31,12 +32,15 @@ bool module_manager::load_modules(std::string const & directory)
 			return false;
 		}
 
-		std::cout << "Loaded " << path << std::endl;
+		std::cout << "Loaded " << path << " (function pointer " << ail::hex_string_32(reinterpret_cast<uword>(function_pointer)) << ")" << std::endl;
+
+		typedef void * (* get_process_request_address_type)();
+		get_process_request_address_type get_process_request_address = reinterpret_cast<get_process_request_address_type>(function_pointer);
 
 		module_entry current_entry;
 		current_entry.name = path;
 		current_entry.module_pointer = new_module;
-		current_entry.handler = reinterpret_cast<request_handler_function_type *>(function_pointer);
+		current_entry.handler = reinterpret_cast<request_handler_function_type *>(get_process_request_address());
 		module_entries.push_back(current_entry);
 	}
 
@@ -45,11 +49,13 @@ bool module_manager::load_modules(std::string const & directory)
 
 bool module_manager::process_request(http_request & request, module_result & result)
 {
+	std::cout << "module_manager::process_request" << std::endl;
+
 	BOOST_FOREACH(module_entry & entry, module_entries)
 	{
-		entry.handler(request, result);
+		std::cout << entry.name << ":" << std::endl;
 
-		std::cout << entry.name << ": ";
+		entry.handler(request, result);
 
 		bool output = false;
 
@@ -67,11 +73,17 @@ bool module_manager::process_request(http_request & request, module_result & res
 			case request_handler_result::error:
 				std::cout << "Error: " << result.error_message << std::endl;
 				break;
+
+			default:
+				std::cout << "Invalid result specified: " << ail::hex_string_32(static_cast<uword>(result.result)) << std::endl;
+				break;
 		}
 
 		if(result.command == request_handler_command::stop)
 			return output;
 	}
+
+	std::cout << "None of the modules succeeded at processing the request" << std::endl;
 
 	return false;
 }

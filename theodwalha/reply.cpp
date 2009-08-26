@@ -61,7 +61,7 @@ bool http_reply::get_packet(std::string & packet)
 			return false;
 	}
 
-	packet += " " + ail::number_to_string(code) + description + delimiter;
+	packet += " " + ail::number_to_string(code) + " " + description + delimiter;
 	if(gzip)
 	{
 		try
@@ -86,6 +86,8 @@ bool http_reply::get_packet(std::string & packet)
 	}
 
 	packet += "Content-Type: " + content_type;
+
+	packet += delimiter + delimiter;
 
 	packet += content;
 

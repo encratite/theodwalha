@@ -39,6 +39,8 @@ void http_server_client::read()
 
 void http_server_client::write(std::string const & data)
 {
+	std::cout << "Writing:" << std::endl << data << std::endl;
+
 	char * write_buffer = new char[data.size()];
 	std::memcpy(write_buffer, data.c_str(), data.size());
 	boost::asio::async_write(socket, boost::asio::buffer(write_buffer, data.size()), boost::bind(&http_server_client::write_event, this, boost::asio::placeholders::error, write_buffer));
@@ -137,7 +139,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 			}
 			else if(bytes_read == expected_byte_count)
 			{
-				std::cout << "Ready to serve data for " << current_request.path << ", time to have the module manager process it" << std::endl;
+				std::cout << "Ready to serve data for " << current_request.path << std::endl;
 				module_result result;
 				if(modules.process_request(current_request, result))
 				{
@@ -173,6 +175,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 void http_server_client::write_event(boost::system::error_code const & error, char * write_buffer)
 {
 	delete write_buffer;
+
+	std::cout << "Got a write event" << std::endl;
 
 	if(!error)
 	{
@@ -217,14 +221,15 @@ bool http_server_client::generate_content(http_request & request, module_result 
 
 	reply.gzip = request.gzip;
 	reply.keep_alive = request.keep_alive;
+	reply.content_type = result.content_type;
+	reply.keep_alive_timeout = keep_alive_timeout;
+	reply.content = result.content;
 
 	if(!reply.get_packet(content))
 	{
 		std::cout << "Failed to build reply packet" << std::endl;
 		return false;
 	}
-
-	reply.keep_alive_timeout = keep_alive_timeout;
 
 	return true;
 }
