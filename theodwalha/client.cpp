@@ -4,6 +4,7 @@
 #include <theodwalha/client.hpp>
 #include <theodwalha/configuration.hpp>
 #include <theodwalha/temporary.hpp>
+#include <theodwalha/reply.hpp>
 
 http_server_client::http_server_client(boost::asio::io_service & io_service, temporary_file_manager & file_manager, module_manager & modules):
 	socket(io_service),
@@ -136,7 +137,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 			}
 			else if(bytes_read == expected_byte_count)
 			{
-				std::cout << "Ready to serve data for " << current_request.path << ", time to have the module manager process it" std::endl;
+				std::cout << "Ready to serve data for " << current_request.path << ", time to have the module manager process it" << std::endl;
 				module_result result;
 				if(modules.process_request(current_request, result))
 				{

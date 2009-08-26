@@ -65,7 +65,7 @@ bool module_manager::process_request(http_request & request, module_result & res
 				break;
 
 			case request_handler_result::error:
-				std::cout << "Error: " << result.error_message std::endl;
+				std::cout << "Error: " << result.error_message << std::endl;
 				break;
 		}
 

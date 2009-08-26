@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 #include <theodwalha/temporary.hpp>
 #include <theodwalha/request.hpp>
+#include <theodwalha/module_manager.hpp>
 
 struct http_server_client
 {
