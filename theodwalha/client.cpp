@@ -141,6 +141,18 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 				if(modules.process_request(current_request, result))
 				{
 					std::cout << "The module manager successfully processed the request" << std::endl;
+					std::string data;
+					if(generate_content(current_request, result, data))
+					{
+						std::cout << "Successfully generated the HTTP content, serving it to the client" << std::endl;
+						write(data);
+					}
+					else
+					{
+						std::cout << "Failed to generate HTTP content" << std::endl;
+						terminate();
+						return;
+					}
 				}
 				else
 				{
@@ -179,7 +191,7 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 		terminate();
 }
 
-bool module_manager::generate_content(http_request & request, module_result & result, std::string & content)
+bool http_server_client::generate_content(http_request & request, module_result & result, std::string & content)
 {
 	http_reply reply;
 	reply.protocol = request.protocol_version;
