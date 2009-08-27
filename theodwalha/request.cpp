@@ -168,8 +168,6 @@ process_header_result::type process_header(std::string const & input, http_reque
 		offset += target.size();
 		std::string argument = current_line.substr(offset);
 
-		std::cout << "Processing name " << name << std::endl;
-
 		if(name == "Content-Type")
 		{
 			if(argument == "application/x-www-form-urlencoded")
@@ -232,7 +230,6 @@ process_header_result::type process_header(std::string const & input, http_reque
 			BOOST_FOREACH(std::string token, argument_tokens)
 			{
 				token = ail::trim(token);
-				std::cout << "Parsing Connection token: " << token << std::endl;
 				if(token == "Keep-Alive")
 					output.keep_alive = true;
 			}

@@ -34,6 +34,7 @@ void http_server_client::initialise()
 
 void http_server_client::read()
 {
+	std::cout << "Reading" << std::endl;
 	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
@@ -59,6 +60,7 @@ void http_server_client::terminate()
 
 void http_server_client::read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer)
 {
+	std::cout << "Read event" << std::endl;
 	if(!error)
 	{
 		std::cout << "Read " << bytes_in_buffer << " bytes:" << std::endl;
@@ -133,7 +135,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 			std::cout << "Expected byte count: " << current_request.header_size << " + " << current_request.content_length << " = " << expected_byte_count << std::endl;
 			if(bytes_read > expected_byte_count)
 			{
-				std::cout << "Received too many bytes from a client" << std::endl;
+				std::cout << "Received too many bytes from a client: " << bytes_read << " > " << expected_byte_count << std::endl;
 				terminate();
 				return;
 			}
@@ -149,6 +151,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 					{
 						std::cout << "Successfully generated the HTTP content, serving it to the client" << std::endl;
 						write(data);
+						return;
 					}
 					else
 					{
@@ -187,9 +190,14 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 			{
 				std::cout << "Client keep alive counter is zero" << std::endl;
 				terminate();
+				return;
 			}
 			else
+			{
+				std::cout << "Reinitialising the state" << std::endl;
+				initialise();
 				read();
+			}
 		}
 	}
 	else
