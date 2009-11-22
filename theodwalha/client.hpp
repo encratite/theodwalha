@@ -35,5 +35,5 @@ struct http_server_client
 	void read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer);
 	void write_event(boost::system::error_code const & error, char * write_buffer);
 
-	bool http_server_client::generate_content(http_request & request, module_result & result, std::string & content);
+	bool generate_content(http_request & request, module_result & result, std::string & content);
 };

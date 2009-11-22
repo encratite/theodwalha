@@ -75,7 +75,7 @@ bool temporary_file_manager::clean()
 
 	ulong current_time = ail::time();
 	string_vector removed_strings;
-	BOOST_FOREACH(temporary_file_entry & file_entry, files)
+	BOOST_FOREACH(temporary_file_entry const & file_entry, files)
 	{
 		if(current_time - file_entry.timestamp < temporary_file_expiration)
 			continue;
