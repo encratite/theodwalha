@@ -229,8 +229,8 @@ process_header_result::type process_header(std::string const & input, http_reque
 			string_vector argument_tokens = ail::tokenise(argument, ",");
 			BOOST_FOREACH(std::string token, argument_tokens)
 			{
-				token = ail::trim(token);
-				if(token == "Keep-Alive")
+				token = ail::to_lower(ail::trim(token));
+				if(token == "keep-alive")
 					output.keep_alive = true;
 			}
 		}

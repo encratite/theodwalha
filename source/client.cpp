@@ -35,12 +35,13 @@ void http_server_client::initialise()
 void http_server_client::read()
 {
 	std::cout << "Reading" << std::endl;
+
 	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
 void http_server_client::write(std::string const & data)
 {
-	std::cout << "Writing:" << std::endl << data << std::endl;
+	//std::cout << "Writing:" << std::endl << data << std::endl;
 
 	char * write_buffer = new char[data.size()];
 	std::memcpy(write_buffer, data.c_str(), data.size());
@@ -60,10 +61,11 @@ void http_server_client::terminate()
 
 void http_server_client::read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer)
 {
-	std::cout << "Read event" << std::endl;
+	//std::cout << "Read event" << std::endl;
+
 	if(!error)
 	{
-		std::cout << "Read " << bytes_in_buffer << " bytes:" << std::endl;
+		std::cout << "Read " << bytes_in_buffer << " bytes" << std::endl;
 		bytes_read += bytes_in_buffer;
 
 		if(bytes_read > maximal_request_size)
@@ -79,7 +81,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		{
 			extended_buffer += new_data;
 
-			std::cout << extended_buffer << std::endl;
+			//std::cout << extended_buffer << std::endl;
 
 			if(!got_header)
 			{
@@ -132,7 +134,7 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		if(got_header)
 		{
 			std::size_t expected_byte_count = current_request.header_size + current_request.content_length;
-			std::cout << "Expected byte count: " << current_request.header_size << " + " << current_request.content_length << " = " << expected_byte_count << std::endl;
+			//std::cout << "Expected byte count: " << current_request.header_size << " + " << current_request.content_length << " = " << expected_byte_count << std::endl;
 			if(bytes_read > expected_byte_count)
 			{
 				std::cout << "Received too many bytes from a client: " << bytes_read << " > " << expected_byte_count << std::endl;
@@ -172,7 +174,10 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		read();
 	}
 	else
+	{
+		std::cout << "Read error" << std::endl;
 		terminate();
+	}
 }
 
 void http_server_client::write_event(boost::system::error_code const & error, char * write_buffer)
@@ -201,7 +206,10 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 		}
 	}
 	else
+	{
+		std::cout << "Write error" << std::endl;
 		terminate();
+	}
 }
 
 bool http_server_client::generate_content(http_request & request, module_result & result, std::string & content)

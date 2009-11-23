@@ -52,11 +52,11 @@ bool module_manager::load_modules(std::string const & directory)
 
 bool module_manager::process_request(http_request & request, module_result & result)
 {
-	std::cout << "module_manager::process_request" << std::endl;
+	//std::cout << "module_manager::process_request" << std::endl;
 
 	BOOST_FOREACH(module_entry & entry, module_entries)
 	{
-		std::cout << entry.name << ":" << std::endl;
+		//std::cout << entry.name << ": " << std::endl;
 
 		entry.handler(request, result);
 
@@ -69,7 +69,7 @@ bool module_manager::process_request(http_request & request, module_result & res
 				break;
 
 			case request_handler_result::success:
-				std::cout << "Success!" << std::endl; 
+				//std::cout << "Success!" << std::endl;
 				output = true;
 				break;
 
