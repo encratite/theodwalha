@@ -31,6 +31,7 @@ bool http_server::launch_server(ushort new_port)
 	boost::system::error_code error;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), new_port);
 	acceptor.open(endpoint.protocol());
+	acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 	acceptor.bind(endpoint, error);
 	acceptor.listen(backlog);
 	if(!error)
@@ -42,7 +43,7 @@ bool http_server::launch_server(ushort new_port)
 	}
 	else
 	{
-		std::cout << "Failed to bind acceptor: " << error << std::endl;
+		std::cout << "Failed to bind acceptor on port " << new_port << ": " << error << std::endl;
 		return false;
 	}
 }

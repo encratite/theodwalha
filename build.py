@@ -10,6 +10,6 @@ for library in ['boost_system', 'boost_thread', 'boost_filesystem', 'ail', 'z', 
 	builder.library(library)
 
 if builder.program():
-	builder.link_static_library()
-	nil.setup.include(project)
-	nil.setup.library(builder.library)
+	if builder.static_library(True):
+		nil.setup.include(project)
+		nil.setup.library(os.path.join(builder.output_directory, builder.library))
