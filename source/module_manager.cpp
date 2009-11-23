@@ -38,7 +38,7 @@ bool module_manager::load_modules(std::string const & directory)
 		get_process_request_address_type get_process_request_address = reinterpret_cast<get_process_request_address_type>(function_pointer);
 		void * void_pointer = get_process_request_address();
 
-		std::cout << "get_process_request_address returned: " << ail::hex_string_32(reinterpret_cast<uword>(void_pointer)) << std::endl;
+		//std::cout << "get_process_request_address returned: " << ail::hex_string_32(reinterpret_cast<uword>(void_pointer)) << std::endl;
 
 		module_entry current_entry;
 		current_entry.name = path;
