@@ -34,14 +34,16 @@ void http_server_client::initialise()
 
 void http_server_client::read()
 {
-	std::cout << "Reading" << std::endl;
+	if(debugging)
+		std::cout << "Reading" << std::endl;
 
 	socket.async_read_some(boost::asio::buffer(read_buffer, read_buffer_size), boost::bind(&http_server_client::read_event, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
 void http_server_client::write(std::string const & data)
 {
-	//std::cout << "Writing:" << std::endl << data << std::endl;
+	if(debugging)
+		std::cout << "Writing:" << std::endl << data << std::endl;
 
 	char * write_buffer = new char[data.size()];
 	std::memcpy(write_buffer, data.c_str(), data.size());
@@ -50,7 +52,8 @@ void http_server_client::write(std::string const & data)
 
 void http_server_client::terminate()
 {
-	std::cout << "Terminating" << std::endl;
+	if(debugging)
+		std::cout << "Terminating" << std::endl;
 	if(!temporary_file_name.empty())
 	{
 		temporary_file.close();
@@ -61,11 +64,13 @@ void http_server_client::terminate()
 
 void http_server_client::read_event(boost::system::error_code const & error, std::size_t bytes_in_buffer)
 {
-	//std::cout << "Read event" << std::endl;
+	if(debugging)
+		std::cout << "Read event" << std::endl;
 
 	if(!error)
 	{
-		std::cout << "Read " << bytes_in_buffer << " bytes" << std::endl;
+		if(debugging)
+			std::cout << "Read " << bytes_in_buffer << " bytes" << std::endl;
 		bytes_read += bytes_in_buffer;
 
 		if(bytes_read > maximal_request_size)
@@ -81,7 +86,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		{
 			extended_buffer += new_data;
 
-			//std::cout << extended_buffer << std::endl;
+			if(debugging)
+				std::cout << extended_buffer << std::endl;
 
 			if(!got_header)
 			{
@@ -101,7 +107,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 
 					case process_header_result::success:
 						got_header = true;
-						std::cout << "Retrieved the full HTTP header" << std::endl;
+						if(debugging)
+							std::cout << "Retrieved the full HTTP header" << std::endl;
 						break;
 				}
 			}
@@ -134,7 +141,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 		if(got_header)
 		{
 			std::size_t expected_byte_count = current_request.header_size + current_request.content_length;
-			//std::cout << "Expected byte count: " << current_request.header_size << " + " << current_request.content_length << " = " << expected_byte_count << std::endl;
+			if(debugging)
+				std::cout << "Expected byte count: " << current_request.header_size << " + " << current_request.content_length << " = " << expected_byte_count << std::endl;
 			if(bytes_read > expected_byte_count)
 			{
 				std::cout << "Received too many bytes from a client: " << bytes_read << " > " << expected_byte_count << std::endl;
@@ -143,15 +151,18 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 			}
 			else if(bytes_read == expected_byte_count)
 			{
-				std::cout << "Ready to serve data for " << current_request.path << std::endl;
+				if(debugging)
+					std::cout << "Ready to serve data for " << current_request.path << std::endl;
 				module_result result;
 				if(modules.process_request(current_request, result))
 				{
-					std::cout << "The module manager successfully processed the request" << std::endl;
+					if(debugging)
+						std::cout << "The module manager successfully processed the request" << std::endl;
 					std::string data;
 					if(generate_content(current_request, result, data))
 					{
-						std::cout << "Successfully generated the HTTP content, serving it to the client" << std::endl;
+						if(debugging)
+							std::cout << "Successfully generated the HTTP content, serving it to the client" << std::endl;
 						write(data);
 						return;
 					}
@@ -175,7 +186,8 @@ void http_server_client::read_event(boost::system::error_code const & error, std
 	}
 	else
 	{
-		std::cout << "Read error" << std::endl;
+		if(debugging)
+			std::cout << "Read error" << std::endl;
 		terminate();
 	}
 }
@@ -184,7 +196,8 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 {
 	delete write_buffer;
 
-	std::cout << "Got a write event" << std::endl;
+	if(debugging)
+		std::cout << "Got a write event" << std::endl;
 
 	if(!error)
 	{
@@ -193,16 +206,23 @@ void http_server_client::write_event(boost::system::error_code const & error, ch
 			keep_alive_counter--;
 			if(keep_alive_counter <= 0)
 			{
-				std::cout << "Client keep alive counter is zero" << std::endl;
+				if(debugging)
+					std::cout << "Client keep alive counter is zero" << std::endl;
 				terminate();
-				return;
 			}
 			else
 			{
-				std::cout << "Reinitialising the state" << std::endl;
+				if(debugging)
+					std::cout << "Reinitialising the state" << std::endl;
 				initialise();
 				read();
 			}
+		}
+		else
+		{
+			if(debugging)
+				std::cout << "No keep-alive" << std::endl;
+			terminate();
 		}
 	}
 	else

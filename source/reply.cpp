@@ -5,7 +5,7 @@
 
 http_reply::http_reply():
 	gzip(false),
-	keep_alive(false)
+	keep_alive(true)
 {
 }
 

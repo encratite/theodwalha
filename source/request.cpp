@@ -28,7 +28,7 @@ quality_entry::quality_entry(std::string const & name, float quality_value):
 http_request::http_request():
 	has_content_type(false),
 	has_content_length(false),
-	keep_alive(false),
+	keep_alive(true),
 	gzip(false),
 	content_length(0)
 {
@@ -230,8 +230,8 @@ process_header_result::type process_header(std::string const & input, http_reque
 			BOOST_FOREACH(std::string token, argument_tokens)
 			{
 				token = ail::to_lower(ail::trim(token));
-				if(token == "keep-alive")
-					output.keep_alive = true;
+				if(token == "close")
+					output.keep_alive = false;
 			}
 		}
 	}

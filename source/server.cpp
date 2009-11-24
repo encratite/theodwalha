@@ -59,7 +59,8 @@ void http_server::accept_event(boost::system::error_code const & error, http_ser
 	if(!error)
 	{
 		boost::asio::ip::tcp::endpoint endpoint = new_client->socket.remote_endpoint();
-		std::cout << "New connection from " << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
+		if(debugging)
+			std::cout << "New connection from " << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
 		new_client->start();
 		accept();
 	}
